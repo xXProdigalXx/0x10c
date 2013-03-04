@@ -14,26 +14,44 @@ SET [0x8021], 0xF031
 SET [0x8022], 0xF02E
 SET [0x8023], 0xF030
 
-:control
+:bootscreen
 
 	SET I, 0
 
 	SET [0x8061], 0xF041
 	SET [0x8081], 0xF042
 	SET [0x80A1], 0xF043
+	
+	IFE C, 0x80
+		ADD I, 1
+		
+	IFE I, 4
+		SET I, 0
+		
+	IFE C, 0x81
+		SUB I, 1
 
+	IFE I, -1
+		SET I, 3
+		
 	IFE I, 0
 		SET [0x8060], 0xF03E
+		SET [0x8080], 0xF020
+		SET [0x80A0], 0xF020
 
 	IFE I, 1
 		SET [0x8080], 0xF03E
+		SET [0x8080], 0xF020
+		SET [0x80A0], 0xF020
 		
 	IFE I, 2
 		SET [0x80A0], 0xF03E
+		SET [0x8060], 0xF020
+		SET [0x8080], 0xF020
 		
-	SET PC, keyboard	;	Runs the keyboard funcion
+	SET PC, keyboard
 		
-:keyboard
+:keyboard	;	Subroutine to pull keyboard input
 
 	IFE [0x9000], 0
 		SET PC, keyboard
@@ -41,4 +59,15 @@ SET [0x8023], 0xF030
 	SET C, [0x9000]
 	SET [0x9000], 0
 	
-	SET PC, control
+	SET PC, bootscreen
+	
+:clearScreen	;	Subroutine to clear the screen
+
+	SET [0x8000 + A] 0xF020
+	
+	IFE A, 20
+		SET PC, POP
+	
+	ADD A, 1
+	
+	SET PC, clearScreen
